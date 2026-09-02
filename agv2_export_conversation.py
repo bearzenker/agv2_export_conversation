@@ -151,8 +151,9 @@ def wrap_code_block(content):
 
 def main():
     parser = argparse.ArgumentParser(description="Export Antigravity V2 conversation details and artifacts to Markdown.")
-    parser.add_argument("-p", "--project", required=True, help="Name of the project (e.g. 'atc')")
-    parser.add_argument("-c", "--conversation", required=True, help="Conversation UUID or conversation title search term")
+    parser.add_argument("-p", "--project", help="Name of the project (e.g. 'atc')")
+    parser.add_argument("-c", "--conversation", help="Conversation UUID or conversation title search term")
+    parser.add_argument("-l", "--list", action="store_true", help="List available projects, or list conversations within a project if -p/--project is specified")
     parser.add_argument("-d", "--db-dir", default="~/.gemini/antigravity", help="Database directory path")
     parser.add_argument("-o", "--output-dir", default=".", help="Directory to save the exported markdown file")
     
@@ -182,12 +183,46 @@ def main():
             if se['uuid'] not in known_uuids:
                 entries.append(se)
                 
+    # Handle listing mode
+    if args.list:
+        if args.project:
+            project_entries = [e for e in entries if e['project'].lower() == args.project.lower()]
+            if not project_entries:
+                print(f"Error: No conversations found for project '{args.project}'.", file=sys.stderr)
+                available_projects = sorted(list(set(e['project'] for e in entries if e['project'])))
+                if available_projects:
+                    print("Available projects:", file=sys.stderr)
+                    for proj in available_projects:
+                        print(f"  - {proj}", file=sys.stderr)
+                sys.exit(1)
+                
+            print(f"Available conversations for project '{args.project}':")
+            for e in project_entries:
+                print(f"  - UUID: {e['uuid']}, Title: '{e['title']}'")
+        else:
+            projects = sorted(list(set(e['project'] for e in entries if e['project'])))
+            if not projects:
+                print("No projects found.")
+            else:
+                print("Available projects:")
+                for proj in projects:
+                    print(f"  - {proj}")
+        sys.exit(0)
+        
+    # If not in listing mode, both --project and --conversation are required
+    if not args.project or not args.conversation:
+        parser.error("the following arguments are required: -p/--project, -c/--conversation (unless --list is specified)")
+        
     # Filter by project
     project_entries = [e for e in entries if e['project'].lower() == args.project.lower()]
     
     if not project_entries:
         print(f"Error: No conversations found for project '{args.project}'.", file=sys.stderr)
-        print("Available projects:", sorted(list(set(e['project'] for e in entries if e['project']))), file=sys.stderr)
+        available_projects = sorted(list(set(e['project'] for e in entries if e['project'])))
+        if available_projects:
+            print("Available projects:", file=sys.stderr)
+            for proj in available_projects:
+                print(f"  - {proj}", file=sys.stderr)
         sys.exit(1)
         
     # Match conversation

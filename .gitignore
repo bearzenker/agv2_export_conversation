@@ -2,4 +2,7 @@
 _gemini
 # test files
 *_*-??-??T??-??*.md
+__pycache__/
+*.pyc
+
 
