@@ -35,24 +35,47 @@ The utility is self-contained and uses standard Python libraries:
 
 ## Command Line Interface (CLI)
 ```bash
+# Export a conversation to Markdown
 python3 agv2_export_conversation.py -p <project_name> -c <conversation_identifier> [options]
+
+# List all available projects
+python3 agv2_export_conversation.py --list
+
+# List all conversations within a project
+python3 agv2_export_conversation.py -p <project_name> --list
 ```
 
 ### Arguments & Options
 
 | Option | Long Flag | Required | Default | Description |
 | :--- | :--- | :---: | :--- | :--- |
-| `-p` | `--project` | **Yes** | N/A | Name of the project (e.g. `atc`). |
-| `-c` | `--conversation` | **Yes** | N/A | The conversation UUID or a search term within the title. |
+| `-p` | `--project` | Conditional | N/A | Name of the project (e.g. `atc`). Required unless `--list` is used without `-p`. |
+| `-c` | `--conversation` | Conditional | N/A | The conversation UUID or search term within title. Required for exports. |
+| `-l` | `--list` | No | `False` | Lists available projects, or lists conversations within a specified project (`-p`). |
 | `-d` | `--db-dir` | No | `~/.gemini/antigravity` | Path to the directory where the Antigravity database is stored. |
 | `-o` | `--output-dir` | No | `.` | The target directory where the exported Markdown file will be written. |
 | `-h` | `--help` | No | N/A | Displays the help message and exit. |
 
 ---
 
-## Step-by-Step Example
+## Step-by-Step Examples
+
+### 1. Listing Projects & Conversations
+
+#### List all available projects
+```bash
+python3 agv2_export_conversation.py --list
+```
+
+#### List conversations within a project
+```bash
+python3 agv2_export_conversation.py -p agv2_export_conversation --list
+```
+
+### 2. Exporting a Conversation
 
 You can run the utility against the included backup database to test its functionality.
+
 
 ### Command
 ```bash
