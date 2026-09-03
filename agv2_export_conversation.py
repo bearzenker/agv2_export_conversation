@@ -303,8 +303,12 @@ def main():
                     
             if step.get('type') == 'PLANNER_RESPONSE' and step.get('source') == 'MODEL':
                 thinking = step.get('thinking', '')
+                step_ts = step.get('created_at', '')
                 if thinking:
-                    thoughts.append(thinking.strip())
+                    thoughts.append({
+                        'timestamp': step_ts,
+                        'thinking': thinking.strip()
+                    })
                     
     if not prompt:
         prompt = "No user prompt found in transcript."
@@ -327,8 +331,15 @@ def main():
             
     output_lines.append("".join(formatted_prompt) + "\n")
     
-    for t in thoughts:
-        output_lines.append(f"```\n{t}\n```\n\n")
+    if thoughts:
+        output_lines.append("## Reasoning\n")
+        for item in thoughts:
+            ts = item['timestamp']
+            t = item['thinking']
+            if ts:
+                output_lines.append(f"_{ts}_\n{t}\n\n")
+            else:
+                output_lines.append(f"{t}\n\n")
         
     # Read and embed artifacts
     artifacts = []
